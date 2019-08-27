@@ -13,6 +13,12 @@ const client = new Client ({
     port: 5432,
 });
 
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });  
+
 app.listen(80, function() {
     console.log("Escuchando puerto 80");
 });
@@ -20,6 +26,12 @@ app.listen(80, function() {
 /* app.get('/', function(req, res) {
     res.sendFile(path.join(__dirname, 'build', 'index.html'));
 }); */
+
+app.get('/canciones/:id', function(req, res) {
+    console.log('path: ', __dirname)
+    console.log(req.params.id)
+    res.sendFile(__dirname + '/public/songs/' + req.params.id);
+});
 
 app.get('/generos', function(req, res) {
     client.connect();
