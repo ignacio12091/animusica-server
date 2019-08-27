@@ -1,11 +1,11 @@
 const express = require('express');
 /* const path = require('path');*/
-const { Pool } = require('pg');
+const { Client } = require('pg');
 
 let app = express();
 /* app.use(express.static(path.join(__dirname, 'build')));
  */
-const client = new Pool ({
+const client = new Client ({
     user: 'postgres',
     host: '127.0.0.1',
     database: 'animusica',
