@@ -7,25 +7,33 @@ let app = express();
  */
 const client = new Pool ({
     user: 'postgres',
-    host: '127.0.0.1',
+    host: '10.1.2.1',
     database: 'animusica',
-    password: 'root',
+    password: '123',
     port: 5432,
+});
+
+client.connect(() => {
+    console.log("conetado");
 });
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
-  });  
+});  
 
 app.listen(80, function() {
     console.log("Escuchando puerto 80");
 });
 
-/* app.get('/', function(req, res) {
-    res.sendFile(path.join(__dirname, 'build', 'index.html'));
-}); */
+app.get('/', function(req, res) {
+    /*res.sendFile(path.join(__dirname, 'build', 'index.html'));*/
+    client.query('SELECT * FROM usuario', (error, response) => {
+        console.log('response: ', response);
+        console.log('error: ', error);
+    });
+});
 
 app.get('/songs/:id', function(req, res) {
     res.sendFile(__dirname + '/public/songs/' + req.params.id);
