@@ -13,8 +13,12 @@ const client = new Pool ({
     port: 5432,
 });
 
-client.connect(() => {
-    console.log("conetado");
+client.connect((err) => {
+    if(err) {
+        console.log('error en la conexión', err.stack);
+    } else {
+        console.log("conetado");
+    }
 });
 
 app.use(function(req, res, next) {
@@ -29,10 +33,6 @@ app.listen(80, function() {
 
 app.get('/', function(req, res) {
     /*res.sendFile(path.join(__dirname, 'build', 'index.html'));*/
-    client.query('SELECT * FROM usuario', (error, response) => {
-        console.log('response: ', response);
-        console.log('error: ', error);
-    });
 });
 
 app.get('/songs/:id', function(req, res) {
@@ -69,13 +69,17 @@ app.get('/mostvisited', function(req, res) {
     });
 });
 
-app.get('/songs', function() {
+app.get('/songs', function(req, res) {
     client.connect();
     client.query('SELECT * from cancion', (error, response) => {
         if(!error) {
-            console.log(response.rows)
+            let songs = []
+            response.rows.forEach(element => {
+                songs.push(element);
+            });
+            res.json(songs);
         } else {
-            res.send("Error fetching songs");
+            res.send("Error fetching most visited");
         }
     });
 });
