@@ -1,19 +1,18 @@
 const Pool = require('pg').Pool
 
 const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'animusica',
-  password: 'root',
-  port: 5432,
+    user: 'postgres',
+    host: '10.1.2.1',
+    database: 'animusica',
+    password: '123',
+    port: 5432,
 })
 
 /*
-Para la db del servidor de animusica
 user: 'postgres',
-host: '10.1.2.1',
+host: 'localhost',
 database: 'animusica',
-password: '123',
+password: 'root',
 port: 5432,
 */
 
@@ -75,9 +74,40 @@ const searchSong = (request, response) => {
     });
 }
 
+const getBestRanked = (request, response) => {
+    pool.query('SELECT * FROM cancion', (error, results) => {
+        if(!error) {
+            let songs = []
+            results.rows.forEach(element => {
+                songs.push(element);
+            });
+            response.json(songs);
+        } else {
+            throw error
+        }
+    });
+}
+
+const getUserPlaylists = (request, response) => {
+    const idCliente = request.params.id
+    pool.query(`SELECT lista_reproduccion.* FROM lista_reproduccion INNER JOIN cliente_lista_reproduccion ON lista_reproduccion.id = cliente_lista_reproduccion.id_lista_reproduccion WHERE cliente_lista_reproduccion.id_cliente = ${idCliente};`, (error, results) => {
+        if(!error) {
+            let playlists = []
+            results.rows.forEach(element => {
+                playlists.push(element);
+            });
+            response.json(playlists);
+        } else {
+            throw error
+        }
+    });
+}
+
 module.exports = {
     getGenres,
     getMostVisited,
     getSongs,
     searchSong,
+    getBestRanked,
+    getUserPlaylists,
 }

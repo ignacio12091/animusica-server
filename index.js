@@ -39,3 +39,7 @@ app.get('/perfil', function(req, res) {
 });
 
 app.get('/songs/search/:song', db.searchSong);
+
+app.get('/bestranked', db.getBestRanked);
+
+app.get('/playlists/user/:id', db.getUserPlaylists);
