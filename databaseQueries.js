@@ -75,7 +75,7 @@ const searchSong = (request, response) => {
 }
 
 const getBestRanked = (request, response) => {
-    pool.query('SELECT * FROM cancion', (error, results) => {
+    pool.query('SELECT cancion.nombre, avg(puntuacion) AS "Promedio Puntuacion" FROM cancion INNER JOIN puntua ON cancion.id = puntua.id_cancion GROUP BY cancion.nombre', (error, results) => {
         if(!error) {
             let songs = []
             results.rows.forEach(element => {
