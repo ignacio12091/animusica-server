@@ -2,18 +2,18 @@ const Pool = require('pg').Pool
 
 const pool = new Pool({
     user: 'postgres',
-    host: '10.1.2.1',
+    host: 'localhost',
     database: 'animusica',
-    password: '123',
+    password: 'root',
     port: 5432,
 })
 
 /*
-user: 'postgres',
-host: 'localhost',
-database: 'animusica',
-password: 'root',
-port: 5432,
+    user: 'postgres',
+    host: '10.1.2.1',
+    database: 'animusica',
+    password: '123',
+    port: 5432,
 */
 
 const getGenres = (request, response) => {
@@ -75,7 +75,7 @@ const searchSong = (request, response) => {
 }
 
 const getBestRanked = (request, response) => {
-    pool.query('SELECT cancion.nombre, avg(puntuacion) AS "Promedio Puntuacion" FROM cancion INNER JOIN puntua ON cancion.id = puntua.id_cancion GROUP BY cancion.nombre', (error, results) => {
+    pool.query('SELECT cancion.nombre, cancion.link_imagen, cancion.link_recurso, avg(puntuacion) AS "Promedio Puntuacion" FROM cancion INNER JOIN puntua ON cancion.id = puntua.id_cancion GROUP BY cancion.nombre, cancion.link_imagen, cancion.link_recurso', (error, results) => {
         if(!error) {
             let songs = []
             results.rows.forEach(element => {
