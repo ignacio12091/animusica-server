@@ -9,11 +9,13 @@ const pool = new Pool({
 })
 
 /*
+
     user: 'postgres',
     host: '10.1.2.1',
     database: 'animusica',
     password: '123',
     port: 5432,
+
 */
 
 const getGenres = (request, response) => {
