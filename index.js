@@ -1,5 +1,6 @@
 const express = require('express');
 const db = require('./databaseQueries');
+const bodyParser = require('body-parser');
 
 /* const path = require('path');*/
 
@@ -16,6 +17,12 @@ app.use(function(req, res, next) {
     next();
 });  
 
+app.use( bodyParser.json() );
+
+app.use(bodyParser.urlencoded({
+  extended: true
+})); 
+
 app.listen(80, function() {
     console.log("Escuchando puerto 80");
 });
@@ -23,6 +30,8 @@ app.listen(80, function() {
 app.get('/', function(req, res) {
     /*res.sendFile(path.join(__dirname, 'build', 'index.html'));*/
 });
+
+app.post('/login', db.validateLogin);
 
 app.get('/songs/:id', function(req, res) {
     res.sendFile(__dirname + '/public/songs/' + req.params.id);

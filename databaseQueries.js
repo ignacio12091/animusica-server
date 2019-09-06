@@ -105,6 +105,22 @@ const getUserPlaylists = (request, response) => {
     });
 }
 
+const validateLogin = (request, response) => {
+    const userEmail = request.body.email
+    const userPassword = request.body.password
+    pool.query(`SELECT * FROM usuario WHERE usuario.email = '${userEmail}' and usuario.contrasena = '${userPassword}'`, (error, results) => {
+        if (!error) {
+            if(results.rows.length > 0) {
+                response.send("Logeado")
+            } else {
+                response.send("Error")
+            }
+        } else {
+            throw error
+        }
+    });
+}
+
 module.exports = {
     getGenres,
     getMostVisited,
@@ -112,4 +128,5 @@ module.exports = {
     searchSong,
     getBestRanked,
     getUserPlaylists,
+    validateLogin,
 }
