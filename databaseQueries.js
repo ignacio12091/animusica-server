@@ -1,4 +1,5 @@
 const Pool = require('pg').Pool
+const bcrypt = require('bcrypt');
 
 const pool = new Pool({
     user: 'postgres',
@@ -108,15 +109,53 @@ const getUserPlaylists = (request, response) => {
 const validateLogin = (request, response) => {
     const userEmail = request.body.email
     const userPassword = request.body.password
-    pool.query(`SELECT * FROM usuario WHERE usuario.email = '${userEmail}' and usuario.contrasena = '${userPassword}'`, (error, results) => {
+    pool.query(`SELECT * FROM usuario WHERE usuario.email = '${userEmail}'`, (error, results) => {
         if (!error) {
             if(results.rows.length > 0) {
-                response.send("Logeado")
+                bcrypt.compare(userPassword, results.rows[0].contrasena, function(err, equals) {
+                    if (equals) {
+                        response.json({ success: true, id: results.rows[0].id });
+                    } else {
+                        response.json({ success: false, error: "Error en la autenticación" })
+                    }
+                });
             } else {
-                response.send("Error")
+                response.json({ success: false, error: "Error en la autenticación" })
             }
         } else {
             throw error
+        }
+    });
+}
+
+const register = (request, response) => {
+    const userName = request.body.name
+    const userSurname = request.body.surname
+    const userDateOfBirth = request.body.birth
+    const userEmail = request.body.email 
+    const userPassword = request.body.password
+    pool.query(`SELECT * FROM usuario WHERE usuario.email = '${userEmail}'`, (error, results) => {
+        if (!error) {
+            if (results.rows.length > 0) {
+                response.json({ success: false, error: "Este mail ya está registrado" })
+            } else {
+                // ese email no está registrado
+                bcrypt.hash(userPassword, 10, (hashError, hash) => {
+                        pool.query(`INSERT INTO usuario (email, nombre, contrasena, link_imagen) VALUES ('${userEmail}', '${userName}', '${hash}', '') RETURNING *;`, (err, res) => {                           
+                            if (!err) {
+                                pool.query(`INSERT INTO cliente (id, apellido, fecha_nacimiento) VALUES (${res.rows[0].id}, '${userSurname}', '${userDateOfBirth}')`, (clientError, clientResponse) => {
+                                    if (!clientError) {
+                                        response.json({ success: true })
+                                    } else {
+                                        response.json({ success: false, error: "Error en la creación del usuario" })
+                                    }
+                                })
+                            } else {
+                                response.json({ success: false, error: "Error en la creación del usuario" })
+                            }       
+                        });
+                })
+            }
         }
     });
 }
@@ -129,4 +168,5 @@ module.exports = {
     getBestRanked,
     getUserPlaylists,
     validateLogin,
+    register,
 }
