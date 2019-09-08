@@ -114,7 +114,7 @@ const validateLogin = (request, response) => {
             if(results.rows.length > 0) {
                 bcrypt.compare(userPassword, results.rows[0].contrasena, function(err, equals) {
                     if (equals) {
-                        response.json({ success: true, id: results.rows[0].id });
+                        response.json({ success: true, user: results.rows[0] });
                     } else {
                         response.json({ success: false, error: "Error en la autenticación" })
                     }
@@ -141,7 +141,7 @@ const register = (request, response) => {
             } else {
                 // ese email no está registrado
                 bcrypt.hash(userPassword, 10, (hashError, hash) => {
-                        pool.query(`INSERT INTO usuario (email, nombre, contrasena, link_imagen) VALUES ('${userEmail}', '${userName}', '${hash}', '') RETURNING *;`, (err, res) => {                           
+                        pool.query(`INSERT INTO usuario (email, nombre, contrasena, link_imagen) VALUES ('${userEmail}', '${userName}', '${hash}', 'https://www.google.com/url?sa=i&source=images&cd=&cad=rja&uact=8&ved=2ahUKEwj8ucrwmMLkAhVkK7kGHbaRBTMQjRx6BAgBEAQ&url=%2Furl%3Fsa%3Di%26source%3Dimages%26cd%3D%26ved%3D%26url%3D%252Furl%253Fsa%253Di%2526source%253Dimages%2526cd%253D%2526ved%253D2ahUKEwixqI_vmMLkAhXjLLkGHQo0BCcQjRx6BAgBEAQ%2526url%253Dhttps%25253A%25252F%25252Fwww.shutterstock.com%25252Fes%25252Fsearch%25252Fuser%25252Blogo%25253Fimage_type%25253Dvector%2526psig%253DAOvVaw0GF5PmMBUqi3lH331-dPGT%2526ust%253D1568065369010555%26psig%3DAOvVaw0GF5PmMBUqi3lH331-dPGT%26ust%3D1568065369010555&psig=AOvVaw0GF5PmMBUqi3lH331-dPGT&ust=1568065369010555') RETURNING *;`, (err, res) => {                           
                             if (!err) {
                                 pool.query(`INSERT INTO cliente (id, apellido, fecha_nacimiento) VALUES (${res.rows[0].id}, '${userSurname}', '${userDateOfBirth}')`, (clientError, clientResponse) => {
                                     if (!clientError) {

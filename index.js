@@ -37,7 +37,7 @@ app.get('/songs/:id', function(req, res) {
     res.sendFile(__dirname + '/public/songs/' + req.params.id);
 });
 
-app.get('/generos', db.getGenres);
+app.get('/genres', db.getGenres);
 
 app.get('/mostvisited', db.getMostVisited);
 
