@@ -43,10 +43,6 @@ app.get('/mostvisited', db.getMostVisited);
 
 app.get('/songs', db.getSongs);
 
-app.get('/perfil', function(req, res) {
-    res.json({ nombre: 'Cristian Mello', edad: 15 });
-});
-
 app.get('/songs/search/:song', db.searchSong);
 
 app.get('/bestranked', db.getBestRanked);
@@ -54,3 +50,5 @@ app.get('/bestranked', db.getBestRanked);
 app.get('/playlists/user/:id', db.getUserPlaylists);
 
 app.post('/register', db.register)
+
+app.post('/user/:id/settings', db.setSettings)

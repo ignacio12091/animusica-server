@@ -135,13 +135,13 @@ const register = (request, response) => {
     const userEmail = request.body.email 
     const userPassword = request.body.password
     pool.query(`SELECT * FROM usuario WHERE usuario.email = '${userEmail}'`, (error, results) => {
-        if (!error) {
+        if (results) {
             if (results.rows.length > 0) {
                 response.json({ success: false, error: "Este mail ya está registrado" })
             } else {
                 // ese email no está registrado
                 bcrypt.hash(userPassword, 10, (hashError, hash) => {
-                        pool.query(`INSERT INTO usuario (email, nombre, contrasena, link_imagen) VALUES ('${userEmail}', '${userName}', '${hash}', 'https://www.google.com/url?sa=i&source=images&cd=&cad=rja&uact=8&ved=2ahUKEwj8ucrwmMLkAhVkK7kGHbaRBTMQjRx6BAgBEAQ&url=%2Furl%3Fsa%3Di%26source%3Dimages%26cd%3D%26ved%3D%26url%3D%252Furl%253Fsa%253Di%2526source%253Dimages%2526cd%253D%2526ved%253D2ahUKEwixqI_vmMLkAhXjLLkGHQo0BCcQjRx6BAgBEAQ%2526url%253Dhttps%25253A%25252F%25252Fwww.shutterstock.com%25252Fes%25252Fsearch%25252Fuser%25252Blogo%25253Fimage_type%25253Dvector%2526psig%253DAOvVaw0GF5PmMBUqi3lH331-dPGT%2526ust%253D1568065369010555%26psig%3DAOvVaw0GF5PmMBUqi3lH331-dPGT%26ust%3D1568065369010555&psig=AOvVaw0GF5PmMBUqi3lH331-dPGT&ust=1568065369010555') RETURNING *;`, (err, res) => {                           
+                        pool.query(`INSERT INTO usuario (email, nombre, contrasena, link_imagen) VALUES ('${userEmail}', '${userName}', '${hash}', 'https://theimag.org/wp-content/uploads/2015/01/user-icon-png-person-user-profile-icon-20.png') RETURNING *;`, (err, res) => {                           
                             if (!err) {
                                 pool.query(`INSERT INTO cliente (id, apellido, fecha_nacimiento) VALUES (${res.rows[0].id}, '${userSurname}', '${userDateOfBirth}')`, (clientError, clientResponse) => {
                                     if (!clientError) {
@@ -160,6 +160,10 @@ const register = (request, response) => {
     });
 }
 
+const setSettings = () => {
+    console.log("ok")
+}
+
 module.exports = {
     getGenres,
     getMostVisited,
@@ -169,4 +173,5 @@ module.exports = {
     getUserPlaylists,
     validateLogin,
     register,
+    setSettings,
 }
