@@ -160,8 +160,31 @@ const register = (request, response) => {
     });
 }
 
-const setSettings = () => {
-    console.log("ok")
+const setSettings = (request, response) => {
+    if (request.body) {
+        switch(request.body.option) {
+            case "name":
+                const userName = request.body.name
+                const userId = request.params.id
+                pool.query(`UPDATE usuario SET nombre='${userName}' WHERE id=${userId}`, (error, results) => {
+                    if (!error) {
+                        response.json({ success: true })                        
+                    } else {
+                        response.json({ success: false })                                                
+                    }
+                });
+            break;
+            default:
+            break;
+        }
+    }
+}
+
+const userInfo = (request, response) => {
+    const userId = request.params.id
+    pool.query(`SELECT id, nombre, email, link_imagen FROM usuario WHERE id=${userId}`, (error, results) => {
+        response.json(results.rows[0])
+    });
 }
 
 module.exports = {
@@ -174,4 +197,5 @@ module.exports = {
     validateLogin,
     register,
     setSettings,
+    userInfo,
 }

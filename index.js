@@ -49,6 +49,8 @@ app.get('/bestranked', db.getBestRanked);
 
 app.get('/playlists/user/:id', db.getUserPlaylists);
 
-app.post('/register', db.register)
+app.get('/user/:id', db.userInfo);
 
-app.post('/user/:id/settings', db.setSettings)
+app.post('/register', db.register);
+
+app.post('/user/:id/settings', db.setSettings);
