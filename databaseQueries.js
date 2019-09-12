@@ -10,7 +10,6 @@ const pool = new Pool({
 })
 
 /*
-
     user: 'postgres',
     host: '10.1.2.1',
     database: 'animusica',
@@ -93,15 +92,17 @@ const getBestRanked = (request, response) => {
 
 const getUserPlaylists = (request, response) => {
     const idCliente = request.params.id
+    console.log(idCliente)
     pool.query(`SELECT lista_reproduccion.* FROM lista_reproduccion INNER JOIN cliente_lista_reproduccion ON lista_reproduccion.id = cliente_lista_reproduccion.id_lista_reproduccion WHERE cliente_lista_reproduccion.id_cliente = ${idCliente};`, (error, results) => {
-        if(!error) {
+        console.log("ok: ", results.rows)
+        if(results) {
             let playlists = []
             results.rows.forEach(element => {
                 playlists.push(element);
             });
             response.json(playlists);
         } else {
-            throw error
+            response.send("error");
         }
     });
 }
