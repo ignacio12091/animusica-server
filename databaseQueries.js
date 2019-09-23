@@ -110,7 +110,7 @@ const getUserPlaylists = (request, response) => {
 const validateLogin = (request, response) => {
     const userEmail = request.body.email
     const userPassword = request.body.password
-    pool.query(`SELECT * FROM usuario WHERE usuario.email = '${userEmail}'`, (error, results) => {
+    pool.query(`SELECT * FROM usuario INNER JOIN cliente ON usuario.id = cliente.id WHERE usuario.email = '${userEmail}'`, (error, results) => {
         if (!error) {
             if(results.rows.length > 0) {
                 bcrypt.compare(userPassword, results.rows[0].contrasena, function(err, equals) {
