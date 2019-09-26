@@ -92,9 +92,7 @@ const getBestRanked = (request, response) => {
 
 const getUserPlaylists = (request, response) => {
     const idCliente = request.params.id
-    console.log(idCliente)
     pool.query(`SELECT lista_reproduccion.* FROM lista_reproduccion INNER JOIN cliente_lista_reproduccion ON lista_reproduccion.id = cliente_lista_reproduccion.id_lista_reproduccion WHERE cliente_lista_reproduccion.id_cliente = ${idCliente};`, (error, results) => {
-        console.log("ok: ", results.rows)
         if(results) {
             let playlists = []
             results.rows.forEach(element => {
@@ -163,15 +161,80 @@ const register = (request, response) => {
 
 const setSettings = (request, response) => {
     if (request.body) {
+        const userId = request.params.id        
         switch(request.body.option) {
             case "name":
                 const userName = request.body.name
-                const userId = request.params.id
                 pool.query(`UPDATE usuario SET nombre='${userName}' WHERE id=${userId}`, (error, results) => {
                     if (!error) {
                         response.json({ success: true })                        
                     } else {
                         response.json({ success: false })                                                
+                    }
+                });
+            break;
+            case "mail":
+                const oldMail = request.body.oldMail
+                const password = request.body.password
+                const newMail = request.body.newMail
+                pool.query(`SELECT * FROM usuario INNER JOIN cliente ON usuario.id = cliente.id WHERE usuario.id = ${userId} and usuario.email = '${oldMail}'`, (error, results) => {
+                    if (!error) {
+                        if(results.rows.length > 0) {
+                            bcrypt.compare(password, results.rows[0].contrasena, function(err, equals) {
+                                if (equals) {
+                                    pool.query(`UPDATE usuario SET email='${newMail}' WHERE id=${userId}`, (error, results) => {
+                                        if (!error) {
+                                            response.json({ success: true })          
+                                        } else {
+                                            response.json({ success: false, error: "No se pudo modificar el nombre" })                                                
+                                        }
+                                    });
+                                } else {
+                                    response.json({ success: false, error: "Error en la autenticación" })
+                                }
+                            });
+                        } else {
+                            response.json({ success: false, error: "Error en la autenticación" })
+                        }
+                    } else {
+                        throw error
+                    }
+                });
+            break;
+            case "password": 
+                const pass = request.body.password
+                const newPassword = request.body.newPassword
+                pool.query(`SELECT * FROM usuario INNER JOIN cliente ON usuario.id = cliente.id WHERE usuario.id = ${userId}`, (error, results) => {
+                    if (!error) {
+                        if(results.rows.length > 0) {
+                            bcrypt.compare(pass, results.rows[0].contrasena, function(err, equals) {
+                                console.log(pass)
+                                console.log(results.rows[0].contrasena)
+                                console.log(equals)                                
+                                if (equals) {
+                                    bcrypt.hash(newPassword, 10, (hashError, hash) => {                        
+                                        if (!err) {
+                                            pool.query(`UPDATE usuario SET contrasena='${hash}' WHERE id=${userId}`, (error, results) => {
+                                                if (!error) {
+                                                    response.json({ success: true })      
+                                                } else {
+                                                    response.json({ success: false, error: "No se pudo modificar el nombre" })                                                
+                                                }
+                                            });
+
+                                        } else {
+                                            response.json({ success: false, error: "Error en la creación del usuario" })
+                                        }
+                                    })
+                                } else {
+                                    response.json({ success: false, error: "Error en la autenticación" })
+                                }
+                            });
+                        } else {
+                            response.json({ success: false, error: "El usuario no existe" })
+                        }
+                    } else {
+                        throw error
                     }
                 });
             break;
