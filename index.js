@@ -54,3 +54,7 @@ app.get('/user/:id', db.userInfo);
 app.post('/register', db.register);
 
 app.post('/user/:id/settings', db.setSettings);
+
+app.post('/playlists/user/:id', db.newPlaylist);
+
+app.post('/playlists/user/:id/:playlistId', db.deletePlaylist);

@@ -251,6 +251,37 @@ const userInfo = (request, response) => {
     });
 }
 
+const newPlaylist = (request, response) => {
+    const userId = request.params.id
+    var todayDate = new Date().toISOString().slice(0,10); 
+    pool.query(`INSERT INTO lista_reproduccion (nombre, descripcion, link_imagen, fecha_subida) VALUES ('${request.body.name}', '${request.body.description}', 'https://pbs.twimg.com/profile_images/943046122125197312/D6iFJCqf_400x400.jpg','${todayDate}') RETURNING *;`, (error, results) => {
+        if(!error) {
+            pool.query(`INSERT INTO cliente_lista_reproduccion (id_lista_reproduccion, id_cliente) VALUES (${results.rows[0].id}, ${userId});`, (err, res) => {
+                if (!err) {
+                    response.json({ success: true });
+                } else {
+                    response.json({ success: false, error: "Error creando la lista de reproducción" })
+                }
+            })
+        } else {
+            response.json({ success: false, error: "Error creando la lista de reproducción" })
+        }
+    })
+}
+
+const deletePlaylist = (request, response) => {
+    pool.query(`DELETE FROM cliente_lista_reproduccion WHERE cliente_lista_reproduccion.id_lista_reproduccion = ${request.params.playlistId} and cliente_lista_reproduccion.id_cliente = ${request.params.id}; DELETE FROM lista_reproduccion WHERE lista_reproduccion.id = ${request.params.playlistId}`, (error, results) => {
+        console.log(error)
+        if (!error) {
+            response.json({ success: true });
+        } else {
+            response.json({ success: false });
+        }
+    })
+    console.log(request.params.id)
+    console.log(request.params.playlistId)
+}
+
 module.exports = {
     getGenres,
     getMostVisited,
@@ -262,4 +293,6 @@ module.exports = {
     register,
     setSettings,
     userInfo,
+    newPlaylist,
+    deletePlaylist,
 }
