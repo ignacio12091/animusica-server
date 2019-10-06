@@ -51,6 +51,8 @@ app.get('/playlists/user/:id', db.getUserPlaylists);
 
 app.get('/user/:id', db.userInfo);
 
+app.get('/playlists/:id', db.getPlaylistSongs);
+
 app.post('/register', db.register);
 
 app.post('/user/:id/settings', db.setSettings);
