@@ -108,10 +108,14 @@ const getUserPlaylists = (request, response) => {
 const validateLogin = (request, response) => {
     const userEmail = request.body.email
     const userPassword = request.body.password
-    pool.query(`SELECT * FROM usuario INNER JOIN cliente ON usuario.id = cliente.id WHERE usuario.email = '${userEmail}'`, (error, results) => {
+    pool.query(`SELECT * FROM usuario INNER JOIN cliente ON usuario.id = cliente.id_usuario WHERE usuario.email = '${userEmail}'`, (error, results) => {
+        console.log('error: ', error)
+        console.log('result: ', results)
         if (!error) {
             if(results.rows.length > 0) {
                 bcrypt.compare(userPassword, results.rows[0].contrasena, function(err, equals) {
+                    console.log('error: ', err)
+                    console.log('result: ', equals)
                     if (equals) {
                         response.json({ success: true, user: results.rows[0] });
                     } else {
@@ -119,6 +123,7 @@ const validateLogin = (request, response) => {
                     }
                 });
             } else {
+                console.log("not foulder")
                 response.json({ success: false, error: "Error en la autenticación" })
             }
         } else {
@@ -138,11 +143,10 @@ const register = (request, response) => {
             if (results.rows.length > 0) {
                 response.json({ success: false, error: "Este mail ya está registrado" })
             } else {
-                // ese email no está registrado
                 bcrypt.hash(userPassword, 10, (hashError, hash) => {
                         pool.query(`INSERT INTO usuario (email, nombre, contrasena, link_imagen) VALUES ('${userEmail}', '${userName}', '${hash}', 'https://theimag.org/wp-content/uploads/2015/01/user-icon-png-person-user-profile-icon-20.png') RETURNING *;`, (err, res) => {                           
                             if (!err) {
-                                pool.query(`INSERT INTO cliente (id, apellido, fecha_nacimiento) VALUES (${res.rows[0].id}, '${userSurname}', '${userDateOfBirth}')`, (clientError, clientResponse) => {
+                                pool.query(`INSERT INTO cliente (id_usuario, apellido, fecha_nacimiento) VALUES (${res.rows[0].id}, '${userSurname}', '${userDateOfBirth}')`, (clientError, clientResponse) => {
                                     if (!clientError) {
                                         response.json({ success: true })
                                     } else {
@@ -177,7 +181,7 @@ const setSettings = (request, response) => {
                 const oldMail = request.body.oldMail
                 const password = request.body.password
                 const newMail = request.body.newMail
-                pool.query(`SELECT * FROM usuario INNER JOIN cliente ON usuario.id = cliente.id WHERE usuario.id = ${userId} and usuario.email = '${oldMail}'`, (error, results) => {
+                pool.query(`SELECT * FROM usuario INNER JOIN cliente ON usuario.id = cliente.id_usuario WHERE usuario.id = ${userId} and usuario.email = '${oldMail}'`, (error, results) => {
                     if (!error) {
                         if(results.rows.length > 0) {
                             bcrypt.compare(password, results.rows[0].contrasena, function(err, equals) {
@@ -204,13 +208,10 @@ const setSettings = (request, response) => {
             case "password": 
                 const pass = request.body.password
                 const newPassword = request.body.newPassword
-                pool.query(`SELECT * FROM usuario INNER JOIN cliente ON usuario.id = cliente.id WHERE usuario.id = ${userId}`, (error, results) => {
+                pool.query(`SELECT * FROM usuario INNER JOIN cliente ON usuario.id = cliente.id_usuario WHERE usuario.id = ${userId}`, (error, results) => {
                     if (!error) {
                         if(results.rows.length > 0) {
-                            bcrypt.compare(pass, results.rows[0].contrasena, function(err, equals) {
-                                console.log(pass)
-                                console.log(results.rows[0].contrasena)
-                                console.log(equals)                                
+                            bcrypt.compare(pass, results.rows[0].contrasena, function(err, equals) {                               
                                 if (equals) {
                                     bcrypt.hash(newPassword, 10, (hashError, hash) => {                        
                                         if (!err) {
@@ -255,6 +256,7 @@ const newPlaylist = (request, response) => {
     const userId = request.params.id
     var todayDate = new Date().toISOString().slice(0,10); 
     pool.query(`INSERT INTO lista_reproduccion (nombre, descripcion, link_imagen, fecha_subida) VALUES ('${request.body.name}', '${request.body.description}', 'https://pbs.twimg.com/profile_images/943046122125197312/D6iFJCqf_400x400.jpg','${todayDate}') RETURNING *;`, (error, results) => {
+        console.log(error)
         if(!error) {
             pool.query(`INSERT INTO cliente_lista_reproduccion (id_lista_reproduccion, id_cliente) VALUES (${results.rows[0].id}, ${userId});`, (err, res) => {
                 if (!err) {
