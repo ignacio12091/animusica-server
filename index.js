@@ -60,3 +60,5 @@ app.post('/user/:id/settings', db.setSettings);
 app.post('/playlists/user/:id', db.newPlaylist);
 
 app.post('/playlists/user/:id/:playlistId', db.deletePlaylist);
+
+app.post('/playlists/user/:id/:playlistId/:songId', db.addSongToPlaylist);

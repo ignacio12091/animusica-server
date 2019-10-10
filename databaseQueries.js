@@ -109,13 +109,9 @@ const validateLogin = (request, response) => {
     const userEmail = request.body.email
     const userPassword = request.body.password
     pool.query(`SELECT * FROM usuario INNER JOIN cliente ON usuario.id = cliente.id_usuario WHERE usuario.email = '${userEmail}'`, (error, results) => {
-        console.log('error: ', error)
-        console.log('result: ', results)
         if (!error) {
             if(results.rows.length > 0) {
                 bcrypt.compare(userPassword, results.rows[0].contrasena, function(err, equals) {
-                    console.log('error: ', err)
-                    console.log('result: ', equals)
                     if (equals) {
                         response.json({ success: true, user: results.rows[0] });
                     } else {
@@ -123,7 +119,6 @@ const validateLogin = (request, response) => {
                     }
                 });
             } else {
-                console.log("not foulder")
                 response.json({ success: false, error: "Error en la autenticación" })
             }
         } else {
@@ -256,7 +251,6 @@ const newPlaylist = (request, response) => {
     const userId = request.params.id
     var todayDate = new Date().toISOString().slice(0,10); 
     pool.query(`INSERT INTO lista_reproduccion (nombre, descripcion, link_imagen, fecha_subida) VALUES ('${request.body.name}', '${request.body.description}', 'https://pbs.twimg.com/profile_images/943046122125197312/D6iFJCqf_400x400.jpg','${todayDate}') RETURNING *;`, (error, results) => {
-        console.log(error)
         if(!error) {
             pool.query(`INSERT INTO cliente_lista_reproduccion (id_lista_reproduccion, id_cliente) VALUES (${results.rows[0].id}, ${userId});`, (err, res) => {
                 if (!err) {
@@ -282,10 +276,9 @@ const deletePlaylist = (request, response) => {
 }
 
 const getPlaylistSongs = (request, response) => {
-    console.log(request.params.id)
-    pool.query(`SELECT c.* FROM lista_reproduccion lr INNER JOIN lista_reproduccion_cancion lrc ON lr.id = lrc.id_lista_reproduccion INNER JOIN cancion c ON lrc.id_cancion = c.id and lrc.id_artista = c.id_artista WHERE lr.id = ${request.params.id}`, (error, results) => {
+    pool.query(`SELECT c.* FROM lista_reproduccion lr INNER JOIN lista_reproduccion_cancion lrc ON lr.id = lrc.id_lista_reproduccion INNER JOIN cancion c ON lrc.id_cancion = c.id and lrc.id_usuario = c.id_usuario WHERE lr.id = ${request.params.id}`, (error, results) => {
+        console.log(error)
         if (!error) {
-            console.log(results.rows)
             if (results.rows.length > 0) {
                 response.json({ success: true, songs: results.rows });
             } else {
@@ -293,6 +286,18 @@ const getPlaylistSongs = (request, response) => {
             }
         } else {
             response.json({ success: false, error: "Error al traer los datos de la playlist" });
+        }
+    })
+}
+
+const addSongToPlaylist = (request, response) => {
+    pool.query(`INSERT INTO lista_reproduccion_cancion (id_lista_reproduccion, id_cancion, id_usuario) VALUES (${request.params.playlistId}, ${request.params.songId}, ${request.params.id})`, (error, results) => {
+        if (!error) {
+            response.json({ success: true });
+        } else if (error.code === "23505") {
+            response.json({ success: false, error: "Esta canción ya está agregada a la lista de reproducción" });
+        } else {
+            response.json({ success: false, error: "Error agregando la canción a la lista de reproducción" });
         }
     })
 }
@@ -311,4 +316,5 @@ module.exports = {
     newPlaylist,
     deletePlaylist,
     getPlaylistSongs,
+    addSongToPlaylist,
 }
