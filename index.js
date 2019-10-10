@@ -53,6 +53,8 @@ app.get('/user/:id', db.userInfo);
 
 app.get('/playlists/:id', db.getPlaylistSongs);
 
+app.get('/playlists/user/:id/:playlistId/:songId', db.deleteSongFromPlaylist);
+
 app.post('/register', db.register);
 
 app.post('/user/:id/settings', db.setSettings);

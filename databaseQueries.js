@@ -302,6 +302,16 @@ const addSongToPlaylist = (request, response) => {
     })
 }
 
+const deleteSongFromPlaylist = (request, response) => {
+    pool.query(`DELETE FROM lista_reproduccion_cancion WHERE lista_reproduccion_cancion.id_lista_reproduccion = ${request.params.playlistId} and lista_reproduccion_cancion.id_usuario = ${request.params.id} and lista_reproduccion_cancion.id_id_cancion = ${request.params.songId}`, (error, results) => {
+        if (!error) {
+            response.json({ success: true });
+        } else {
+            response.json({ success: false });
+        }
+    })
+}
+
 module.exports = {
     getGenres,
     getMostVisited,
@@ -317,4 +327,5 @@ module.exports = {
     deletePlaylist,
     getPlaylistSongs,
     addSongToPlaylist,
+    deleteSongFromPlaylist,
 }
