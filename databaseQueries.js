@@ -277,7 +277,6 @@ const deletePlaylist = (request, response) => {
 
 const getPlaylistSongs = (request, response) => {
     pool.query(`SELECT c.* FROM lista_reproduccion lr INNER JOIN lista_reproduccion_cancion lrc ON lr.id = lrc.id_lista_reproduccion INNER JOIN cancion c ON lrc.id_cancion = c.id and lrc.id_usuario = c.id_usuario WHERE lr.id = ${request.params.id}`, (error, results) => {
-        console.log(error)
         if (!error) {
             if (results.rows.length > 0) {
                 response.json({ success: true, songs: results.rows });
@@ -303,7 +302,9 @@ const addSongToPlaylist = (request, response) => {
 }
 
 const deleteSongFromPlaylist = (request, response) => {
-    pool.query(`DELETE FROM lista_reproduccion_cancion WHERE lista_reproduccion_cancion.id_lista_reproduccion = ${request.params.playlistId} and lista_reproduccion_cancion.id_usuario = ${request.params.id} and lista_reproduccion_cancion.id_id_cancion = ${request.params.songId}`, (error, results) => {
+    pool.query(`DELETE FROM lista_reproduccion_cancion WHERE lista_reproduccion_cancion.id_lista_reproduccion = ${request.params.playlistId} and lista_reproduccion_cancion.id_usuario = ${request.params.artistId} and lista_reproduccion_cancion.id_cancion = ${request.params.songId}`, (error, results) => {
+        console.log(error)
+        console.log(results)
         if (!error) {
             response.json({ success: true });
         } else {
