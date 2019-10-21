@@ -25,11 +25,11 @@ const getGenres = (request, response) => {
             results.rows.forEach(element => {
                 console.log(element.nombre)
                 /*
-                SELECT * FROM cancion ORDER BY RANDOM() LIMIT 10;
+                    SELECT * FROM cancion ORDER BY RANDOM() LIMIT 10;
 
-SELECT *
-FROM genero INNER JOIN cancion_genero ON genero.nombre = cancion_genero.genero_nombre INNER JOIN cancion ON cancion_genero.id_cancion = cancion.id and cancion_genero.id_usuario = cancion.id_usuario
-WHERE genero.nombre = 'Bachata'
+                    SELECT *
+                    FROM genero INNER JOIN cancion_genero ON genero.nombre = cancion_genero.genero_nombre INNER JOIN cancion ON cancion_genero.id_cancion = cancion.id and cancion_genero.id_usuario = cancion.id_usuario
+                    WHERE genero.nombre = 'Bachata'
                 */
             });
             response.status(200).json(result);
