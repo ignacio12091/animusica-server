@@ -19,24 +19,61 @@ const pool = new Pool({
 */
 
 const getGenres = (request, response) => {
-    pool.query('SELECT * FROM genero', (error, results) => {
+/*     function callback () { console.log('all done'); }
+
+    function asyncFunction (item, cb) {
+        setTimeout(() => {
+          console.log('done with', item);
+          cb();
+        }, 100);
+      }
+    
+    var itemsProcessed = 0; */
+    
+/*     [1, 2, 3].forEach((item, index, array) => {
+      asyncFunction(item, () => {
+        itemsProcessed++;
+        if(itemsProcessed === array.length) {
+          callback();
+        }
+      });
+    }); */
+
+/*     pool.query('SELECT * FROM genero', (error, results) => {
         if(!error) {
             let result = [];
             results.rows.forEach(element => {
-                console.log(element.nombre)
-                /*
-                    SELECT * FROM cancion ORDER BY RANDOM() LIMIT 10;
-
-                    SELECT *
-                    FROM genero INNER JOIN cancion_genero ON genero.nombre = cancion_genero.genero_nombre INNER JOIN cancion ON cancion_genero.id_cancion = cancion.id and cancion_genero.id_usuario = cancion.id_usuario
-                    WHERE genero.nombre = 'Bachata'
-                */
+                pool.query(`SELECT * FROM genero INNER JOIN cancion_genero ON genero.nombre = cancion_genero.genero_nombre INNER JOIN cancion ON cancion_genero.id_cancion = cancion.id and cancion_genero.id_usuario = cancion.id_usuario WHERE genero.nombre = '${element.nombre}' ORDER BY RANDOM() LIMIT 10`, (error, results) => {
+                    result.push({
+                        genre: element.nombre,
+                        songs: results.rows,
+                    });
+                });
             });
-            response.status(200).json(result);
+            console.log(result)
+            response.json(result);
         } else {
-            throw error
+            response.json({ success: false });
         }
-    })
+    }) */
+
+/*     pool.query('SELECT * FROM genero', (error, results) => {
+        if(!error) {
+            let result = [];
+            results.rows.forEach(element => {
+                pool.query(`SELECT * FROM genero INNER JOIN cancion_genero ON genero.nombre = cancion_genero.genero_nombre INNER JOIN cancion ON cancion_genero.id_cancion = cancion.id and cancion_genero.id_usuario = cancion.id_usuario WHERE genero.nombre = '${element.nombre}' ORDER BY RANDOM() LIMIT 10`, (error, results) => {
+                    result.push({
+                        genre: element.nombre,
+                        songs: results.rows,
+                    });
+                });
+            });
+            console.log(result)
+            response.json(result);
+        } else {
+            response.json({ success: false });
+        }
+    }) */
 }
 
 const getMostVisited = (request, response) => {
@@ -48,7 +85,7 @@ const getMostVisited = (request, response) => {
             });
             response.json(songs);
         } else {
-            throw error
+            response.json({ success: false })
         }
     });
 }
@@ -62,7 +99,7 @@ const getSongs = (request, response) => {
             });
             response.json(songs);
         } else {
-            throw error
+            response.json({ success: false })
         }
     });
 }
@@ -78,7 +115,7 @@ const searchSong = (request, response) => {
             });
             response.json(match);
         } else {
-            throw error
+            response.json({ success: false })
         }
     });
 }
@@ -92,7 +129,7 @@ const getBestRanked = (request, response) => {
             });
             response.json(songs);
         } else {
-            throw error
+            response.json({ success: false })
         }
     });
 }
@@ -129,7 +166,7 @@ const validateLogin = (request, response) => {
                 response.json({ success: false, error: "Error en la autenticación" })
             }
         } else {
-            throw error
+            response.json({ success: false })
         }
     });
 }
@@ -146,19 +183,19 @@ const register = (request, response) => {
                 response.json({ success: false, error: "Este mail ya está registrado" })
             } else {
                 bcrypt.hash(userPassword, 10, (hashError, hash) => {
-                        pool.query(`INSERT INTO usuario (email, nombre, contrasena, link_imagen) VALUES ('${userEmail}', '${userName}', '${hash}', 'https://theimag.org/wp-content/uploads/2015/01/user-icon-png-person-user-profile-icon-20.png') RETURNING *;`, (err, res) => {                           
-                            if (!err) {
-                                pool.query(`INSERT INTO cliente (id_usuario, apellido, fecha_nacimiento) VALUES (${res.rows[0].id}, '${userSurname}', '${userDateOfBirth}')`, (clientError, clientResponse) => {
-                                    if (!clientError) {
-                                        response.json({ success: true })
-                                    } else {
-                                        response.json({ success: false, error: "Error en la creación del usuario" })
-                                    }
-                                })
-                            } else {
-                                response.json({ success: false, error: "Error en la creación del usuario" })
-                            }       
-                        });
+                    pool.query(`INSERT INTO usuario (email, nombre, contrasena, link_imagen) VALUES ('${userEmail}', '${userName}', '${hash}', 'https://theimag.org/wp-content/uploads/2015/01/user-icon-png-person-user-profile-icon-20.png') RETURNING *;`, (err, res) => {                           
+                        if (!err) {
+                            pool.query(`INSERT INTO cliente (id_usuario, apellido, fecha_nacimiento) VALUES (${res.rows[0].id}, '${userSurname}', '${userDateOfBirth}')`, (clientError, clientResponse) => {
+                                if (!clientError) {
+                                    response.json({ success: true })
+                                } else {
+                                    response.json({ success: false, error: "Error en la creación del usuario" })
+                                }
+                            })
+                        } else {
+                            response.json({ success: false, error: "Error en la creación del usuario" })
+                        }       
+                    });
                 })
             }
         }
