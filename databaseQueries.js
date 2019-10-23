@@ -19,61 +19,39 @@ const pool = new Pool({
 */
 
 const getGenres = (request, response) => {
-/*     function callback () { console.log('all done'); }
+    function callback (result) { response.json(result); }
 
-    function asyncFunction (item, cb) {
+    function asyncFunction (element, cb) {
         setTimeout(() => {
-          console.log('done with', item);
-          cb();
+            pool.query(`SELECT * FROM genero INNER JOIN cancion_genero ON genero.nombre = cancion_genero.genero_nombre INNER JOIN cancion ON cancion_genero.id_cancion = cancion.id and cancion_genero.id_usuario = cancion.id_usuario WHERE genero.nombre = '${element.nombre}' ORDER BY RANDOM() LIMIT 10`, (error, results) => {
+                cb(results.rows);
+            });
         }, 100);
       }
     
-    var itemsProcessed = 0; */
-    
-/*     [1, 2, 3].forEach((item, index, array) => {
-      asyncFunction(item, () => {
-        itemsProcessed++;
-        if(itemsProcessed === array.length) {
-          callback();
-        }
-      });
-    }); */
+    var itemsProcessed = 0;
 
-/*     pool.query('SELECT * FROM genero', (error, results) => {
+    pool.query('SELECT * FROM genero', (error, results) => {
         if(!error) {
             let result = [];
-            results.rows.forEach(element => {
-                pool.query(`SELECT * FROM genero INNER JOIN cancion_genero ON genero.nombre = cancion_genero.genero_nombre INNER JOIN cancion ON cancion_genero.id_cancion = cancion.id and cancion_genero.id_usuario = cancion.id_usuario WHERE genero.nombre = '${element.nombre}' ORDER BY RANDOM() LIMIT 10`, (error, results) => {
-                    result.push({
-                        genre: element.nombre,
-                        songs: results.rows,
-                    });
-                });
-            });
-            console.log(result)
-            response.json(result);
+            results.rows.forEach((element, index, array) => {
+                asyncFunction(element, (songs) => {
+                    itemsProcessed++;
+                    if (songs.length > 0) {
+                        result.push({
+                            genre: element.nombre,
+                            songs: songs,
+                        })
+                    }
+                    if (itemsProcessed === array.length) {
+                        callback(result)
+                    }
+                })
+            })
         } else {
             response.json({ success: false });
         }
-    }) */
-
-/*     pool.query('SELECT * FROM genero', (error, results) => {
-        if(!error) {
-            let result = [];
-            results.rows.forEach(element => {
-                pool.query(`SELECT * FROM genero INNER JOIN cancion_genero ON genero.nombre = cancion_genero.genero_nombre INNER JOIN cancion ON cancion_genero.id_cancion = cancion.id and cancion_genero.id_usuario = cancion.id_usuario WHERE genero.nombre = '${element.nombre}' ORDER BY RANDOM() LIMIT 10`, (error, results) => {
-                    result.push({
-                        genre: element.nombre,
-                        songs: results.rows,
-                    });
-                });
-            });
-            console.log(result)
-            response.json(result);
-        } else {
-            response.json({ success: false });
-        }
-    }) */
+    });
 }
 
 const getMostVisited = (request, response) => {
