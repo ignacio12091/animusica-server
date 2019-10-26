@@ -2,14 +2,7 @@ const express = require('express');
 const db = require('./databaseQueries');
 const bodyParser = require('body-parser');
 
-/* const path = require('path');*/
-
 let app = express();
-
-/* 
-Para devolver la página cuando se haga un build
-app.use(express.static(path.join(__dirname, 'build')));
-*/
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
